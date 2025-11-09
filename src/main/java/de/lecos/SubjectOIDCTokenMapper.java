@@ -47,6 +47,7 @@ public class SubjectOIDCTokenMapper extends AbstractOIDCProtocolMapper implement
         return "Map the subject (sub) to another claim";
     }
 
+
     @Override
     protected void setClaim(IDToken token,
                             ProtocolMapperModel mappingModel,
@@ -56,15 +57,21 @@ public class SubjectOIDCTokenMapper extends AbstractOIDCProtocolMapper implement
         UserModel user = userSession.getUser();
         String subjectId = user.getId();
         if (subjectId == null) {
-            RealmModel realm = keycloakSession.getContext().getRealm();
-            new EventBuilder(realm, keycloakSession)
-                    .event(EventType.LOGIN_ERROR)
-                    .user(user)
-                    .client(clientSessionCtx.getClientSession().getClient())
-                    .error("subject_id_missing");
+            logSubjectIdMissingError(user, keycloakSession, clientSessionCtx);
             return;
         }
-        
+
         OIDCAttributeMapperHelper.mapClaim(token, mappingModel, subjectId);
+    }
+
+    private void logSubjectIdMissingError(UserModel user,
+                                          KeycloakSession keycloakSession,
+                                          ClientSessionContext clientSessionCtx) {
+        RealmModel realm = keycloakSession.getContext().getRealm();
+        new EventBuilder(realm, keycloakSession)
+                .event(EventType.LOGIN_ERROR)
+                .user(user)
+                .client(clientSessionCtx.getClientSession().getClient())
+                .error("subject_id_missing");
     }
 }
