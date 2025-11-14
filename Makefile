@@ -37,6 +37,6 @@ start-dev:
 		-p 8080:8080 \
 		-e KC_BOOTSTRAP_ADMIN_USERNAME=admin \
 		-e KC_BOOTSTRAP_ADMIN_PASSWORD=admin \
-		-v "./target/keycloak-sub-mapper-1.0-SNAPSHOT-jar-with-dependencies.jar:/opt/keycloak/providers/keycloak-sub-mapper-1.0-SNAPSHOT-jar-with-dependencies.jar" \
+		-v "./target:/opt/keycloak/providers:z" \
 		quay.io/keycloak/keycloak:$(KEYCLOAK_VERSION) \
 		start-dev

@@ -9,7 +9,6 @@ This is useful when a downstream service needs the stable Keycloak subject ident
 - Language: Java 17
 - Build tool: Apache Maven (pom.xml)
 - Keycloak: SPI provider for OIDC protocol mappers (tested/targeted for Keycloak 26.x)
-- Packaging: JAR (optionally an "jar-with-dependencies" via `maven-assembly-plugin`)
 
 
 ## Requirements
@@ -33,7 +32,6 @@ You can build either using Maven directly or via the provided Makefile (which bu
 
 Artifacts are produced under `target/`:
 - `keycloak-sub-mapper-<version>.jar`
-- `keycloak-sub-mapper-<version>-jar-with-dependencies.jar`
 
 
 ## Run / Try in Keycloak (Container)
@@ -88,29 +86,6 @@ Variables in `Makefile` you can override via environment (defaults shown in file
 There are currently no automated tests in this repository. TODO: add unit tests and/or integration tests against a Keycloak container.
 
 
-## Version Notes and Known Inconsistencies
-There are a few version/artifact name mismatches in the current repo state:
-- `pom.xml` sets:
-  - `<version>26.0.0</version>` for the artifact
-  - `<keycloak.version>26.0.0</keycloak.version>` for dependencies
-- `target/` contains artifacts named like `keycloak-sub-mapper-26.4.0*.jar` (suggesting a different version was built at some point)
-- `Makefile` uses `KEYCLOAK_VERSION := 26.4.4` and mounts a jar named `keycloak-sub-mapper-1.0-SNAPSHOT-jar-with-dependencies.jar`
-- `maven-assembly-plugin` manifest `mainClass` points to `de.lecos.keycloak.authenticator` which does not exist in this repo and is not needed for a Keycloak provider
-
-TODOs:
-- [ ] Align the project artifact version in `pom.xml` with the intended release (e.g., 26.4.x if matching Keycloak 26.4.x)
-- [ ] Align `keycloak.version` property with the Keycloak runtime version you target (e.g., 26.4.x)
-- [ ] Update the `Makefile` to mount the correct built jar name from `target/`
-- [ ] Consider removing the `mainClass` from the assembly plugin configuration, as this is a library/provider, not a standalone app
-
-
-## License
-No license file is present. TODO: add a LICENSE (e.g., Apache-2.0, MIT, or your preferred license) and update this section accordingly.
-
-
 ## FAQ
 - Q: Is there an application entry point?
   - A: No. This is a Keycloak SPI provider discovered via ServiceLoader. The entry point is the service registration file `META-INF/services/org.keycloak.protocol.ProtocolMapper` referencing `de.lecos.SubjectOIDCTokenMapper`.
-- Q: Do I need the `-jar-with-dependencies` assembly?
-  - A: Often not for Keycloak providers that depend only on Keycloak APIs (provided scope). If you add third-party runtime deps, the fat jar may help. Prefer the plain jar plus placing any needed libs into `/opt/keycloak/providers`.
-
